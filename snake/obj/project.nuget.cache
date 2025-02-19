@@ -1,8 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "6uQkhEGtWuQ=",
+  "dgSpecHash": "Nuo0ZhU27o8=",
   "success": true,
-  "projectFilePath": "C:\\Users\\r_dostal\\source\\repos\\snake\\snake\\snake.csproj",
-  "expectedPackageFiles": [],
+  "projectFilePath": "/Users/robindostal/DATA/skola/ING/1LS/PO/Snake/snake/snake.csproj",
+  "expectedPackageFiles": [
+    "/Users/robindostal/.nuget/packages/microsoft.netcore.app.ref/8.0.12/microsoft.netcore.app.ref.8.0.12.nupkg.sha512",
+    "/Users/robindostal/.nuget/packages/microsoft.aspnetcore.app.ref/8.0.12/microsoft.aspnetcore.app.ref.8.0.12.nupkg.sha512",
+    "/Users/robindostal/.nuget/packages/microsoft.netcore.app.host.osx-arm64/8.0.12/microsoft.netcore.app.host.osx-arm64.8.0.12.nupkg.sha512"
+  ],
   "logs": []
 }
