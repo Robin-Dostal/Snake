@@ -10,144 +10,185 @@ namespace Snake
 {
     class Program
     {
+        enum Direction { UP, DOWN, LEFT, RIGHT } 
         static void Main(string[] args)
         {
+            // Set up the console window size
             Console.WindowHeight = 16;
             Console.WindowWidth = 32;
-            int screenWidth = Console.WindowWidth;
-            int screenHeight = Console.WindowHeight;
-            Random randomNummer = new Random();
-            int score = 5;
-            int gameOver = 0;
-            Pixel hoofd = new Pixel();
-            hoofd.xPos = screenWidth / 2;
-            hoofd.yPos = screenHeight / 2;
-            hoofd.schermkleur = ConsoleColor.Red;
-            string movement = "RIGHT";
-            List<int> xposlijf = new List<int>();
-            List<int> yposlijf = new List<int>();
-            int berryx = randomNummer.Next(0, screenWidth);
-            int berryy = randomNummer.Next(0, screenHeight);
-            DateTime tijd = DateTime.Now;
-            DateTime tijd2 = DateTime.Now;
-            string buttonpressed = "no";
+            int consoleWidth = Console.WindowWidth;
+            int consoleHeight = Console.WindowHeight;
+
+            // Initialize game variables
+            Random randomGenerator = new Random();
+            int snakeLength = 5;
+            int isGameOver = 0;
+            SnakeHead snakeHead = new SnakeHead
+            {
+                XPosition = consoleWidth / 2,
+                YPosition = consoleHeight / 2,
+                Color = ConsoleColor.Red
+            };
+            Direction currentDirection = Direction.RIGHT;
+            List<int> bodyXPositions = new List<int>();
+            List<int> bodyYPositions = new List<int>();
+            int berryXPosition = randomGenerator.Next(1, consoleWidth - 1);
+            int berryYPosition = randomGenerator.Next(1, consoleHeight - 1);
+            DateTime lastInputTime = DateTime.Now;
+            DateTime currentTime = DateTime.Now;
+            bool inputPressed = false;
+
+
+            // Main game loop
             while (true)
             {
                 Console.Clear();
-                if (hoofd.xPos == screenWidth - 1 || hoofd.xPos == 0 || hoofd.yPos == screenHeight - 1 || hoofd.yPos == 0)
+
+                // Check for collision with walls
+                if (snakeHead.XPosition == consoleWidth - 1 || snakeHead.XPosition == 0 || snakeHead.YPosition == consoleHeight - 1 || snakeHead.YPosition == 0)
                 {
-                    gameOver = 1;
+                    isGameOver = 1;
                 }
-                for (int i = 0; i < screenWidth; i++)
+
+                // Draw the game borders
+                DrawBorders(consoleWidth, consoleHeight);
+
+                // Check for berry collision
+                if (berryXPosition == snakeHead.XPosition && berryYPosition == snakeHead.YPosition)
                 {
-                    Console.SetCursorPosition(i, 0);
+                    snakeLength++;
+                    berryXPosition = randomGenerator.Next(1, consoleWidth - 1);
+                    berryYPosition = randomGenerator.Next(1, consoleHeight - 1);
+                }
+
+                // Draw the snake's body and check for self-collision
+                for (int i = 0; i < bodyXPositions.Count; i++)
+                {
+                    Console.SetCursorPosition(bodyXPositions[i], bodyYPositions[i]);
                     Console.Write("■");
-                }
-                for (int i = 0; i < screenWidth; i++)
-                {
-                    Console.SetCursorPosition(i, screenHeight - 1);
-                    Console.Write("■");
-                }
-                for (int i = 0; i < screenHeight; i++)
-                {
-                    Console.SetCursorPosition(0, i);
-                    Console.Write("■");
-                }
-                for (int i = 0; i < screenHeight; i++)
-                {
-                    Console.SetCursorPosition(screenWidth - 1, i);
-                    Console.Write("■");
-                }
-                Console.ForegroundColor = ConsoleColor.Green;
-                if (berryx == hoofd.xPos && berryy == hoofd.yPos)
-                {
-                    score++;
-                    berryx = randomNummer.Next(1, screenWidth - 2);
-                    berryy = randomNummer.Next(1, screenHeight - 2);
-                }
-                for (int i = 0; i < xposlijf.Count(); i++)
-                {
-                    Console.SetCursorPosition(xposlijf[i], yposlijf[i]);
-                    Console.Write("■");
-                    if (xposlijf[i] == hoofd.xPos && yposlijf[i] == hoofd.yPos)
+                    if (bodyXPositions[i] == snakeHead.XPosition && bodyYPositions[i] == snakeHead.YPosition)
                     {
-                        gameOver = 1;
+                        isGameOver = 1;
                     }
                 }
-                if (gameOver == 1)
+
+                // Check if the game is over
+                if (isGameOver == 1)
                 {
                     break;
                 }
-                Console.SetCursorPosition(hoofd.xPos, hoofd.yPos);
-                Console.ForegroundColor = hoofd.schermkleur;
+
+                // Draw the snake's head
+                Console.SetCursorPosition(snakeHead.XPosition, snakeHead.YPosition);
+                Console.ForegroundColor = snakeHead.Color;
                 Console.Write("■");
-                Console.SetCursorPosition(berryx, berryy);
+
+                // Draw the berry
+                Console.SetCursorPosition(berryXPosition, berryYPosition);
                 Console.ForegroundColor = ConsoleColor.Cyan;
                 Console.Write("■");
-                tijd = DateTime.Now;
-                buttonpressed = "no";
+
+                // Handle movement input
+                lastInputTime = DateTime.Now;
+                inputPressed = false;
                 while (true)
                 {
-                    tijd2 = DateTime.Now;
-                    if (tijd2.Subtract(tijd).TotalMilliseconds > 500) { break; }
+                    currentTime = DateTime.Now;
+                    if (currentTime.Subtract(lastInputTime).TotalMilliseconds > 500) { break; }
                     if (Console.KeyAvailable)
                     {
-                        ConsoleKeyInfo toets = Console.ReadKey(true);
-                        //Console.WriteLine(toets.Key.ToString());
-                        if (toets.Key.Equals(ConsoleKey.UpArrow) && movement != "DOWN" && buttonpressed == "no")
-                        {
-                            movement = "UP";
-                            buttonpressed = "yes";
-                        }
-                        if (toets.Key.Equals(ConsoleKey.DownArrow) && movement != "UP" && buttonpressed == "no")
-                        {
-                            movement = "DOWN";
-                            buttonpressed = "yes";
-                        }
-                        if (toets.Key.Equals(ConsoleKey.LeftArrow) && movement != "RIGHT" && buttonpressed == "no")
-                        {
-                            movement = "LEFT";
-                            buttonpressed = "yes";
-                        }
-                        if (toets.Key.Equals(ConsoleKey.RightArrow) && movement != "LEFT" && buttonpressed == "no")
-                        {
-                            movement = "RIGHT";
-                            buttonpressed = "yes";
-                        }
+                        ConsoleKeyInfo keyPress = Console.ReadKey(true);
+                        HandleInput(keyPress, ref currentDirection, ref inputPressed);
                     }
                 }
-                xposlijf.Add(hoofd.xPos);
-                yposlijf.Add(hoofd.yPos);
-                switch (movement)
+
+                // Update the snake's position
+                bodyXPositions.Add(snakeHead.XPosition);
+                bodyYPositions.Add(snakeHead.YPosition);
+                UpdatePosition(ref snakeHead, currentDirection);
+
+                // Maintain the length of the snake
+                if (bodyXPositions.Count > snakeLength)
                 {
-                    case "UP":
-                        hoofd.yPos--;
-                        break;
-                    case "DOWN":
-                        hoofd.yPos++;
-                        break;
-                    case "LEFT":
-                        hoofd.xPos--;
-                        break;
-                    case "RIGHT":
-                        hoofd.xPos++;
-                        break;
-                }
-                if (xposlijf.Count() > score)
-                {
-                    xposlijf.RemoveAt(0);
-                    yposlijf.RemoveAt(0);
+                    bodyXPositions.RemoveAt(0);
+                    bodyYPositions.RemoveAt(0);
                 }
             }
-            Console.SetCursorPosition(screenWidth / 5, screenHeight / 2);
-            Console.WriteLine("Game over, Score: " + score);
-            Console.SetCursorPosition(screenWidth / 5, screenHeight / 2 + 1);
+
+            // Display game over message
+            Console.SetCursorPosition(consoleWidth / 5, consoleHeight / 2);
+            Console.WriteLine("Game over, Score: " + snakeLength);
+            Console.SetCursorPosition(consoleWidth / 5, consoleHeight / 2 + 1);
         }
-        class Pixel
+
+        // Method to draw the game borders
+        static void DrawBorders(int consoleWidth, int consoleHeight)
         {
-            public int xPos { get; set; }
-            public int yPos { get; set; }
-            public ConsoleColor schermkleur { get; set; }
+            for (int i = 0; i < consoleWidth; i++)
+            {
+                Console.SetCursorPosition(i, 0);
+                Console.Write("■");
+                Console.SetCursorPosition(i, consoleHeight - 1);
+                Console.Write("■");
+            }
+            for (int i = 0; i < consoleHeight; i++)
+            {
+                Console.SetCursorPosition(0, i);
+                Console.Write("■");
+                Console.SetCursorPosition(consoleWidth - 1, i);
+                Console.Write("■");
+            }
+        }
+
+        // Method to handle user input for movement
+        static void HandleInput(ConsoleKeyInfo keyPress, ref Direction currentDirection, ref bool inputPressed)
+        {
+            if (inputPressed) return;
+            if (keyPress.Key == ConsoleKey.UpArrow && currentDirection != Direction.DOWN)
+            {
+                currentDirection = Direction.UP;
+            }
+            else if (keyPress.Key == ConsoleKey.DownArrow && currentDirection != Direction.UP)
+            {
+                currentDirection = Direction.DOWN;
+            }
+            else if (keyPress.Key == ConsoleKey.LeftArrow && currentDirection != Direction.RIGHT)
+            {
+                currentDirection = Direction.LEFT;
+            }
+            else if (keyPress.Key == ConsoleKey.RightArrow && currentDirection != Direction.LEFT)
+            {
+                currentDirection = Direction.RIGHT;
+            }
+            inputPressed = true;
+        }
+
+        // Method to update the snake's position based on movement
+        static void UpdatePosition(ref SnakeHead snakeHead, Direction currentDirection)
+        {
+            switch (currentDirection)
+            {
+                case Direction.UP:
+                    snakeHead.YPosition--;
+                    break;
+                case Direction.DOWN:
+                    snakeHead.YPosition++;
+                    break;
+                case Direction.LEFT:
+                    snakeHead.XPosition--;
+                    break;
+                case Direction.RIGHT:
+                    snakeHead.XPosition++;
+                    break;
+            }
+        }
+
+        // Class to represent the snake's head
+        class SnakeHead
+        {
+            public int XPosition { get; set; }
+            public int YPosition { get; set; }
+            public ConsoleColor Color { get; set; }
         }
     }
 }
