@@ -4,8 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Threading;
-///█ ■
-////https://www.youtube.com/watch?v=SGZgvMwjq2U
+
 namespace Snake
 {
     class Program
@@ -75,6 +74,7 @@ namespace Snake
                 // Check if the game is over
                 if (isGameOver == 1)
                 {
+                    DisplayGameOver(snakeLength, consoleWidth, consoleHeight);
                     break;
                 }
 
@@ -94,7 +94,7 @@ namespace Snake
                 while (true)
                 {
                     currentTime = DateTime.Now;
-                    if (currentTime.Subtract(lastInputTime).TotalMilliseconds > 500) { break; }
+                    if (currentTime.Subtract(lastInputTime).TotalMilliseconds > 150) { break; } // Reduced delay for faster movement
                     if (Console.KeyAvailable)
                     {
                         ConsoleKeyInfo keyPress = Console.ReadKey(true);
@@ -114,11 +114,6 @@ namespace Snake
                     bodyYPositions.RemoveAt(0);
                 }
             }
-
-            // Display game over message
-            Console.SetCursorPosition(consoleWidth / 5, consoleHeight / 2);
-            Console.WriteLine("Game over, Score: " + snakeLength);
-            Console.SetCursorPosition(consoleWidth / 5, consoleHeight / 2 + 1);
         }
 
         // Method to draw the game borders
@@ -182,6 +177,14 @@ namespace Snake
                     break;
             }
         }
+        
+        // Method to display the game over message
+        static void DisplayGameOver(int snakeLength, int consoleWidth, int consoleHeight)
+        {
+            Console.SetCursorPosition(consoleWidth / 5, consoleHeight / 2);
+            Console.WriteLine("Game over, Score: " + snakeLength);
+            Console.SetCursorPosition(consoleWidth / 5, consoleHeight / 2 + 1);
+        }
 
         // Class to represent the snake's head
         class SnakeHead
@@ -192,4 +195,3 @@ namespace Snake
         }
     }
 }
-//¦
