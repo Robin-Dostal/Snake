@@ -9,7 +9,8 @@ namespace Snake
 {
     class Program
     {
-        enum Direction { UP, DOWN, LEFT, RIGHT } 
+        enum Direction { UP, DOWN, LEFT, RIGHT }
+
         static void Main(string[] args)
         {
             // Set up the console window size
@@ -37,14 +38,13 @@ namespace Snake
             DateTime currentTime = DateTime.Now;
             bool inputPressed = false;
 
-
             // Main game loop
             while (true)
             {
                 Console.Clear();
 
                 // Check for collision with walls
-                if (snakeHead.XPosition == consoleWidth - 1 || snakeHead.XPosition == 0 || snakeHead.YPosition == consoleHeight - 1 || snakeHead.YPosition == 0)
+                if (IsCollisionWithWalls(snakeHead.XPosition, snakeHead.YPosition, consoleWidth, consoleHeight))
                 {
                     isGameOver = 1;
                 }
@@ -53,7 +53,7 @@ namespace Snake
                 DrawBorders(consoleWidth, consoleHeight);
 
                 // Check for berry collision
-                if (berryXPosition == snakeHead.XPosition && berryYPosition == snakeHead.YPosition)
+                if (IsBerryEaten(berryXPosition, berryYPosition, snakeHead.XPosition, snakeHead.YPosition))
                 {
                     snakeLength++;
                     berryXPosition = randomGenerator.Next(1, consoleWidth - 1);
@@ -79,14 +79,10 @@ namespace Snake
                 }
 
                 // Draw the snake's head
-                Console.SetCursorPosition(snakeHead.XPosition, snakeHead.YPosition);
-                Console.ForegroundColor = snakeHead.Color;
-                Console.Write("■");
+                DrawSnakeHead(snakeHead.XPosition, snakeHead.YPosition, snakeHead.Color);
 
                 // Draw the berry
-                Console.SetCursorPosition(berryXPosition, berryYPosition);
-                Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.Write("■");
+                DrawBerry(berryXPosition, berryYPosition);
 
                 // Handle movement input
                 lastInputTime = DateTime.Now;
@@ -103,17 +99,24 @@ namespace Snake
                 }
 
                 // Update the snake's position
-                bodyXPositions.Add(snakeHead.XPosition);
-                bodyYPositions.Add(snakeHead.YPosition);
+                UpdateSnakeBody(ref bodyXPositions, ref bodyYPositions, snakeHead.XPosition, snakeHead.YPosition);
                 UpdatePosition(ref snakeHead, currentDirection);
 
                 // Maintain the length of the snake
-                if (bodyXPositions.Count > snakeLength)
-                {
-                    bodyXPositions.RemoveAt(0);
-                    bodyYPositions.RemoveAt(0);
-                }
+                MaintainSnakeLength(ref bodyXPositions, ref bodyYPositions, snakeLength);
             }
+        }
+
+        // Method to check for collision with the walls
+        static bool IsCollisionWithWalls(int x, int y, int consoleWidth, int consoleHeight)
+        {
+            return x == consoleWidth - 1 || x == 0 || y == consoleHeight - 1 || y == 0;
+        }
+
+        // Method to check if the berry is eaten
+        static bool IsBerryEaten(int berryX, int berryY, int snakeX, int snakeY)
+        {
+            return berryX == snakeX && berryY == snakeY;
         }
 
         // Method to draw the game borders
@@ -177,10 +180,44 @@ namespace Snake
                     break;
             }
         }
-        
+
+        // Method to update the snake's body position
+        static void UpdateSnakeBody(ref List<int> bodyXPositions, ref List<int> bodyYPositions, int snakeX, int snakeY)
+        {
+            bodyXPositions.Add(snakeX);
+            bodyYPositions.Add(snakeY);
+        }
+
+        // Method to draw the snake's head
+        static void DrawSnakeHead(int x, int y, ConsoleColor color)
+        {
+            Console.SetCursorPosition(x, y);
+            Console.ForegroundColor = color;
+            Console.Write("■");
+        }
+
+        // Method to draw the berry
+        static void DrawBerry(int x, int y)
+        {
+            Console.SetCursorPosition(x, y);
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.Write("■");
+        }
+
+        // Method to maintain the length of the snake by removing the last segment if necessary
+        static void MaintainSnakeLength(ref List<int> bodyXPositions, ref List<int> bodyYPositions, int snakeLength)
+        {
+            if (bodyXPositions.Count > snakeLength)
+            {
+                bodyXPositions.RemoveAt(0);
+                bodyYPositions.RemoveAt(0);
+            }
+        }
+
         // Method to display the game over message
         static void DisplayGameOver(int snakeLength, int consoleWidth, int consoleHeight)
         {
+            snakeLength = snakeLength - 5;
             Console.SetCursorPosition(consoleWidth / 5, consoleHeight / 2);
             Console.WriteLine("Game over, Score: " + snakeLength);
             Console.SetCursorPosition(consoleWidth / 5, consoleHeight / 2 + 1);
